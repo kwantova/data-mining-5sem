@@ -1,0 +1,38 @@
+import csv
+import struct
+
+
+def process_binary_data(data):
+    record_size = 8  # Размер записи: 2 float по 4 байта каждый
+    records = []
+
+    for i in range(0, len(data), record_size):
+        record = data[i:i + record_size]
+
+        # Проверяем, что размер record ровно 8 байт
+        if len(record) == record_size:
+            unpacked_data = struct.unpack('ff', record)  # Предположительно 2 float
+            records.append(unpacked_data)
+        else:
+            print(f"Недостаточно данных для распаковки в записи {i//record_size + 1}")
+
+    return records
+
+
+# Чтение бинарного файла
+with open('Chemical_ process.sta', 'rb') as sta_file:
+    binary_data = sta_file.read()
+
+# Обработка бинарных данных
+records = process_binary_data(binary_data)
+
+# Запись в CSV файл с заголовками
+with open('outputbar.csv', 'w', newline='') as csv_file:
+    writer = csv.writer(csv_file)
+
+    # Добавляем строку заголовков
+    writer.writerow(["Parameter 1", "Parameter 2"])  # Подписи для каждой колонки
+
+    # Запись данных
+    for record in records:
+        writer.writerow(record)
